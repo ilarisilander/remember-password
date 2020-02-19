@@ -4,6 +4,7 @@ import java.util.Scanner;
 public class rememberPassword {
 
     private static Scanner sc = new Scanner(System.in);
+    private static Crypto crypto = new Encryption();
 
     public static void main(String[] args) {
         boolean active = true;
@@ -23,7 +24,7 @@ public class rememberPassword {
                     updateAccount();
                     break;
                 case 3:
-                    removeAccount();
+                    deleteAccount();
                     break;
                 case 4:
                     showAllAccounts();
@@ -61,7 +62,7 @@ public class rememberPassword {
     }
 
     private static void insertAccount() {
-        String accountSql = "INSERT INTO account(accountLocation, accountUser) VALUES(?,?)";
+        String accountSql = "INSERT INTO account(accountLocation, accountUser, password) VALUES(?,?,?)";
         String passSql = "INSERT INTO password(password) VALUES(?)";
 
         System.out.print("Ange vart kontot finns (hemsida/spel/app): ");
@@ -69,7 +70,8 @@ public class rememberPassword {
         System.out.print("Ange användarnamn: ");
         String user = sc.nextLine();
         System.out.print("Ange lösenord: ");
-        String pass = sc.nextLine();
+        String toEncrypt = sc.nextLine();
+        String pass = new String(crypto.encrypt(toEncrypt.getBytes()));
 
         try{
             Connection conn = connect();
@@ -77,9 +79,10 @@ public class rememberPassword {
             PreparedStatement prepPass = conn.prepareStatement(passSql);
             prepAcc.setString(1, location);
             prepAcc.setString(2, user);
+            prepAcc.setString(3, pass);
             prepPass.setString(1, pass);
-            prepAcc.executeUpdate();
             prepPass.executeUpdate();
+            prepAcc.executeUpdate();
             System.out.println("Du lade till ett ny konto");
         } catch(SQLException e) {
             System.out.println(e.getMessage());
@@ -90,11 +93,13 @@ public class rememberPassword {
 
     }
 
-    private static void removeAccount() {
+    private static void deleteAccount() {
+        System.out.print("Skriv in id't på kontot som du vill ta bort: ");
+
 
     }
 
     private static void showAllAccounts() {
-
+        
     }
 }
